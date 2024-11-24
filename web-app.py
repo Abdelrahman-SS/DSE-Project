@@ -8,9 +8,6 @@ from sklearn.decomposition import PCA
 zoo_data = pd.read_csv("zoo.csv")
 class_data = pd.read_csv("class.csv")
 
-features = ['hair', 'feathers', 'eggs', 'milk', 'airborne', 'aquatic', 
-            'predator', 'toothed', 'backbone', 'breathes', 'venomous', 
-            'fins', 'legs', 'tail', 'domestic', 'catsize']
 
 true_class = zoo_data["class_type"]
 
@@ -20,6 +17,7 @@ st.sidebar.title("Choose Clustering Algorithm")
 algorithm = st.sidebar.selectbox("Algorithm", ["kmeans", "dbscan", "agglomerative"])
 
 df = zoo_data.iloc[:, 1:-1]
+
 scaler = StandardScaler()
 df_scaled = scaler.fit_transform(df)
 
@@ -50,8 +48,10 @@ elif algorithm == "agglomerative":
 st.pyplot(fig)
 
 st.write("**Animals in Each Cluster:**")
-for cluster_id in sorted(set(labels)):
-    cluster_animals = zoo_data['animal_name'][labels == cluster_id]
-    st.write(f"Cluster {cluster_id}:\n{', '.join(cluster_animals)}")
 
+
+zoo_data["cluster"] = labels
+animal_names_per_cluster = zoo_data.groupby('cluster')['animal_name'].apply(list)
+for cluster, animal_names in animal_names_per_cluster.items():
+        st.write(f"Cluster {cluster}:\n{', '.join(animal_names)}")
 
