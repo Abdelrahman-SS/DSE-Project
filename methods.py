@@ -6,7 +6,7 @@ from sklearn.decomposition import PCA
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-
+from matplotlib.patches import Patch
 
 def choose_clustering(algorithm, X, y_true):
 
@@ -18,7 +18,7 @@ def choose_clustering(algorithm, X, y_true):
     elif algorithm == "dbscan":
         model = DBSCAN(eps=3, min_samples=5)
     else:
-        raise ValueError("Unsupported algorithm selected.")
+        print("Algorithm not supported")
 
     
     labels = model.fit_predict(X)
@@ -42,17 +42,26 @@ def evaluate_algorithms(X, y_true):
 def scatter_plotting(alg ,df_scaled , y_true):
     pca = PCA(n_components=2)
     X_pca = pca.fit_transform(df_scaled)
-    #algorithms = ["kmeans", "agglomerative", "dbscan"]
 
-    fig, axes = plt.subplots(1, figsize=(10, 5), sharey=True)
+    fig, ax = plt.subplots(figsize=(10, 5))
     
     
     labels , ari , nmi = choose_clustering(alg , df_scaled , y_true)
+    """
+    unique_labels = sorted(set(labels)) 
+    palette = sns.color_palette("tab10", len(unique_labels))  
+    legend_patches = [
+        Patch(color=palette[label], label=f"Cluster {label}") 
+        for label in unique_labels
+    ]
 
-    sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, palette="tab10", ax=axes, legend=None)
-    axes.set_title(f"{alg.capitalize()} Clustering")
-    axes.set_xlabel("PCA Component 1")
-    axes.set_ylabel("PCA Component 2")
+    ax.legend(handles=legend_patches, title="Clusters", loc="upper right")
+    """
+
+    sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, palette="tab10", ax=ax, legend=None)
+    ax.set_title(f"{alg.capitalize()} Clustering")
+    ax.set_xlabel("PCA Component 1")
+    ax.set_ylabel("PCA Component 2")
 
     plt.suptitle("Cluster Visualization")
     return fig
